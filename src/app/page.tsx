@@ -1,196 +1,151 @@
-'use client';
+"use client";
 
 import { useState } from "react";
-
-// Helper component for the Search Icon
-const SearchIcon = () => (
-  <svg className="w-5 h-5 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
-  </svg>
-);
-
-// Helper component for the Logo
-const FavGrabLogo = () => (
-  <svg width="24" height="24" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <circle cx="12" cy="12" r="10" stroke="white" strokeWidth="2" />
-    <path d="M12 6L12 12M12 12L15.5 15.5M12 12L8.5 15.5M12 12L15.5 8.5M12 12L8.5 8.5" stroke="white" strokeWidth="2" strokeLinecap="round" />
-  </svg>
-);
-
-// Result Card Component
-const ResultCard = ({ iconUrl, title, downloadFilename }: { iconUrl: string, title: string, downloadFilename: string }) => {
-  const [copied, setCopied] = useState(false);
-
-  const handleCopy = () => {
-    navigator.clipboard.writeText(iconUrl);
-    setCopied(true);
-    setTimeout(() => setCopied(false), 2000);
-  };
-
-  const downloadImage = () => {
-    fetch(iconUrl)
-      .then(response => response.blob())
-      .then(blob => {
-        const link = document.createElement('a');
-        link.href = URL.createObjectURL(blob);
-        link.download = downloadFilename;
-        document.body.appendChild(link);
-        link.click();
-        document.body.removeChild(link);
-      })
-      .catch(err => {
-        console.error('Download failed:', err);
-        alert('Download failed!');
-      });
-  };
-
-  return (
-    <div className="bg-white border border-gray-200 rounded-lg p-5 shadow-sm hover:shadow-md transition-shadow duration-200 flex flex-col">
-      <div className="w-full h-32 bg-slate-50 rounded-md flex items-center justify-center mb-4 border">
-        <img src={iconUrl} alt={title} className="max-w-full max-h-24 object-contain" />
-      </div>
-      <h3 className="text-base font-semibold text-gray-800 mb-2 truncate">{title}</h3>
-      <div className="mt-auto flex items-center space-x-2">
-        <button onClick={handleCopy} className="flex-1 text-center text-sm bg-slate-100 hover:bg-slate-200 text-slate-700 px-3 py-2 rounded-md transition-colors">
-          {copied ? 'Copied!' : 'Copy URL'}
-        </button>
-        <button onClick={downloadImage} className="flex-1 text-center text-sm bg-blue-600 hover:bg-blue-700 text-white px-3 py-2 rounded-md transition-colors">
-          Download
-        </button>
-      </div>
-    </div>
-  );
-};
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Card, CardContent } from "@/components/ui/card";
 
 export default function Home() {
-  const [faviconData, setFaviconData] = useState<any>(null);
+  const [url, setUrl] = useState("");
+  const [favicon, setFavicon] = useState("");
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState<string | null>(null);
-  const [inputUrl, setInputUrl] = useState('');
+  const [error, setError] = useState("");
 
-  const fetchFavicon = async (url: string) => {
+  const getFavicon = async () => {
+    if (!url) return;
+
     setLoading(true);
-    setError(null);
-    setFaviconData(null);
+    setError("");
+    setFavicon("");
+
     try {
-      let fullUrl = url;
-      if (!/^https?:\/\//i.test(url)) {
-        fullUrl = 'https://' + url;
+      // 清理 URL
+      let cleanUrl = url.trim();
+      if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+        cleanUrl = "https://" + cleanUrl;
       }
-      const response = await fetch(`/api/favicon?url=${encodeURIComponent(fullUrl)}`);
-      const data = await response.json();
-      if (response.ok && (data.favicon || data.logo)) {
-        setFaviconData(data);
-      } else {
-        setError(data.error || 'Could not find icons for this URL. Please check the address.');
-      }
-    } catch (err) {
-      setError('Network request failed. Please try again later.');
+
+      // 验证 URL 格式
+      const urlObj = new URL(cleanUrl);
+
+      // 直接使用 Google 的 favicon 服务，这是最可靠的方式
+      const faviconUrl = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
+      setFavicon(faviconUrl);
+
+    } catch {
+      setError("请输入有效的网址");
     } finally {
       setLoading(false);
     }
   };
 
-  const handleGetFavicon = (e: React.FormEvent) => {
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (inputUrl) {
-      fetchFavicon(inputUrl);
-    }
+    getFavicon();
   };
 
   return (
-    <div className="bg-slate-50 min-h-screen font-sans">
-      {/* Header & Hero Section */}
-      <div className="bg-gradient-to-br from-blue-700 to-indigo-900">
-        {/* Header */}
-        <header className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          <div className="flex justify-between items-center h-20">
-            <div className="flex items-center space-x-3">
-              <FavGrabLogo />
-              <span className="text-xl font-semibold text-white">FavGrab</span>
-            </div>
-            <a
-              href="https://github.com"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="bg-white/10 hover:bg-white/20 text-white px-4 py-2 rounded-lg text-sm font-medium transition-colors"
-            >
-              GitHub
-            </a>
-          </div>
-        </header>
-
-        {/* Hero */}
-        <section className="pt-12 pb-20 text-white">
-          <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 text-center">
-            <h1 className="text-5xl md:text-6xl font-bold mb-5">Instantly Grab Website Icons</h1>
-            <p className="text-lg text-white/70 max-w-3xl mx-auto mb-8">
-              The perfect tool for developers and designers. Enter any website URL to extract its favicon and logo in seconds.
-            </p>
-            <div className="max-w-2xl mx-auto">
-              <form onSubmit={handleGetFavicon} className="relative mb-5">
-                <div className="flex items-center bg-white rounded-lg p-1.5 shadow-lg">
-                  <div className="pl-4 pr-2 text-gray-400">
-                    <SearchIcon />
-                  </div>
-                  <input
-                    type="url"
-                    value={inputUrl}
-                    onChange={(e) => setInputUrl(e.target.value)}
-                    placeholder="Enter a website URL (e.g., google.com)"
-                    className="w-full py-2.5 text-gray-900 placeholder-gray-500 bg-transparent focus:outline-none"
-                  // required
-                  />
-                  <button
-                    type="submit"
-                    disabled={loading}
-                    onClick={handleGetFavicon}
-                    className="bg-blue-600 hover:bg-blue-700 disabled:bg-blue-400 text-white px-8 py-2.5 rounded-md font-semibold transition-colors"
-                  >
-                    {loading ? 'Grabbing...' : 'Grab Icons'}
-                  </button>
-                </div>
-              </form>
-            </div>
-          </div>
-        </section>
+    <div className="min-h-screen bg-gradient-to-br from-blue-400 via-purple-500 to-orange-400 relative overflow-hidden">
+      {/* 背景纹理 */}
+      <div className="absolute inset-0 opacity-20">
+        <div className="w-full h-full bg-white/5 bg-[radial-gradient(circle_at_20%_50%,rgba(255,255,255,0.1),transparent_70%)]"></div>
       </div>
 
-      {/* Main Content */}
-      <main className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {loading && (
-          <div className="flex justify-center items-center">
-            <svg className="animate-spin h-8 w-8 text-blue-600" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-            </svg>
+      {/* 导航栏 */}
+      <nav className="relative z-10 flex items-center justify-between p-6">
+        <div className="flex items-center space-x-2">
+          <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
+            <span className="text-lg font-bold text-gray-800">🔍</span>
           </div>
-        )}
-        {error && (
-          <div className="mb-8 p-4 bg-red-100 border border-red-200 rounded-lg text-red-800 flex items-center justify-center space-x-3">
-            <span>{error}</span>
-          </div>
-        )}
+          <span className="text-white font-semibold text-xl">FaviconFinder</span>
+        </div>
 
-        {faviconData ? (
-          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-            {faviconData.favicon && (
-              <ResultCard
-                iconUrl={faviconData.favicon}
-                title="Favicon"
-                downloadFilename="favicon.ico"
-              />
-            )}
-            {faviconData.logo && (
-              <ResultCard
-                iconUrl={faviconData.logo}
-                title="Logo"
-                downloadFilename="logo.png"
-              />
-            )}
-          </div>
-        ) : null}
-      </main>
+        <div className="hidden md:flex items-center space-x-8 text-white">
+          <a href="#" className="hover:text-white/80 transition-colors">工具</a>
+          <a href="#" className="hover:text-white/80 transition-colors">API</a>
+          <a href="#" className="hover:text-white/80 transition-colors">帮助</a>
+        </div>
+      </nav>
+
+      {/* 主内容区域 */}
+      <div className="relative z-10 flex flex-col items-center justify-center min-h-[60vh] px-6">
+        <div className="text-center mb-12">
+          <h1 className="text-5xl md:text-6xl font-bold text-white mb-4">
+            找到任何网站的 <span className="text-yellow-300">图标</span>
+          </h1>
+          <p className="text-xl text-white/90 max-w-2xl mx-auto">
+            输入任何网址，立即获取高质量的网站图标
+          </p>
+        </div>
+
+        {/* 输入区域 */}
+        <Card className="w-full max-w-2xl bg-white/95 backdrop-blur-sm shadow-2xl">
+          <CardContent className="p-6">
+            <form onSubmit={handleSubmit} className="space-y-4">
+              <div className="flex space-x-3">
+                <Input
+                  type="text"
+                  placeholder="输入网址，例如：github.com"
+                  value={url}
+                  onChange={(e) => setUrl(e.target.value)}
+                  className="flex-1 h-12 text-lg"
+                />
+                <Button
+                  type="submit"
+                  disabled={loading || !url.trim()}
+                  className="h-12 px-8 bg-gradient-to-r from-blue-500 to-purple-600 hover:from-blue-600 hover:to-purple-700"
+                >
+                  {loading ? "查找中..." : "获取图标"}
+                </Button>
+              </div>
+
+              {error && (
+                <p className="text-red-500 text-sm">{error}</p>
+              )}
+            </form>
+          </CardContent>
+        </Card>
+
+        {/* 结果显示区域 */}
+        {favicon && (
+          <Card className="w-full max-w-2xl mt-8 bg-white/95 backdrop-blur-sm shadow-2xl">
+            <CardContent className="p-6">
+              <div className="text-center space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800">网站图标</h3>
+                <div className="flex justify-center">
+                  <div className="bg-gray-100 p-4 rounded-lg">
+                    <img
+                      src={favicon}
+                      alt="Website favicon"
+                      className="w-16 h-16 object-contain"
+                      onError={(e) => {
+                        const target = e.target as HTMLImageElement;
+                        target.src = `https://www.google.com/s2/favicons?domain=${new URL(url.startsWith('http') ? url : 'https://' + url).hostname}&sz=64`;
+                      }}
+                    />
+                  </div>
+                </div>
+                <div className="space-y-2">
+                  <p className="text-sm text-gray-600">图标链接：</p>
+                  <div className="bg-gray-50 p-3 rounded border text-sm font-mono break-all">
+                    {favicon}
+                  </div>
+                  <Button
+                    onClick={() => navigator.clipboard.writeText(favicon)}
+                    variant="outline"
+                    size="sm"
+                  >
+                    复制链接
+                  </Button>
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+      </div>
+
+      {/* 底部装饰 */}
+      <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-black/10 to-transparent"></div>
     </div>
   );
 }
