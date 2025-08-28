@@ -4,6 +4,7 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card, CardContent } from "@/components/ui/card";
+import Background from "./background";
 
 export default function Home() {
   const [url, setUrl] = useState("");
@@ -29,7 +30,7 @@ export default function Home() {
       const urlObj = new URL(cleanUrl);
 
       // 直接使用 Google 的 favicon 服务，这是最可靠的方式
-      const faviconUrl = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=64`;
+      const faviconUrl = `https://www.google.com/s2/favicons?domain=${urlObj.hostname}&sz=32`;
       setFavicon(faviconUrl);
 
     } catch {
@@ -57,14 +58,14 @@ export default function Home() {
           <div className="w-8 h-8 bg-white rounded-lg flex items-center justify-center">
             <span className="text-lg font-bold text-gray-800">🔍</span>
           </div>
-          <span className="text-white font-semibold text-xl">FaviconFinder</span>
+          <span className="text-white font-semibold text-xl">Favgrab</span>
         </div>
 
-        <div className="hidden md:flex items-center space-x-8 text-white">
+        {/* <div className="hidden md:flex items-center space-x-8 text-white">
           <a href="#" className="hover:text-white/80 transition-colors">工具</a>
           <a href="#" className="hover:text-white/80 transition-colors">API</a>
           <a href="#" className="hover:text-white/80 transition-colors">帮助</a>
-        </div>
+        </div> */}
       </nav>
 
       {/* 主内容区域 */}
@@ -113,31 +114,39 @@ export default function Home() {
               <div className="text-center space-y-4">
                 <h3 className="text-lg font-semibold text-gray-800">网站图标</h3>
                 <div className="flex justify-center">
-                  <div className="bg-gray-100 p-4 rounded-lg">
+                  <div className="bg-gray-100 rounded-lg">
                     <img
                       src={favicon}
                       alt="Website favicon"
-                      className="w-16 h-16 object-contain"
+                      className="w-8 h-8 object-contain"
                       onError={(e) => {
                         const target = e.target as HTMLImageElement;
-                        target.src = `https://www.google.com/s2/favicons?domain=${new URL(url.startsWith('http') ? url : 'https://' + url).hostname}&sz=64`;
+                        target.src = `https://www.google.com/s2/favicons?domain=${new URL(url.startsWith('http') ? url : 'https://' + url).hostname}&sz=32`;
                       }}
                     />
                   </div>
                 </div>
-                <div className="space-y-2">
-                  <p className="text-sm text-gray-600">图标链接：</p>
-                  <div className="bg-gray-50 p-3 rounded border text-sm font-mono break-all">
-                    {favicon}
-                  </div>
-                  <Button
-                    onClick={() => navigator.clipboard.writeText(favicon)}
-                    variant="outline"
-                    size="sm"
-                  >
-                    复制链接
-                  </Button>
-                </div>
+                <Button
+                  onClick={async () => {
+                    try {
+                      const response = await fetch(favicon);
+                      const blob = await response.blob();
+                      const url = window.URL.createObjectURL(blob);
+                      const a = document.createElement('a');
+                      a.href = url;
+                      a.download = 'favicon.ico';
+                      document.body.appendChild(a);
+                      a.click();
+                      document.body.removeChild(a);
+                      window.URL.revokeObjectURL(url);
+                    } catch (error) {
+                      console.error('下载失败:', error);
+                    }
+                  }}
+                  className="bg-gradient-to-r from-green-500 to-blue-600 hover:from-green-600 hover:to-blue-700"
+                >
+                  下载图标
+                </Button>
               </div>
             </CardContent>
           </Card>
