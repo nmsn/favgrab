@@ -11,6 +11,8 @@ export default function Home() {
   const [favicon, setFavicon] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+  const [metadata, setMetadata] = useState<any>(null);
+  const [metascraperLoading, setMetascraperLoading] = useState(false);
 
   const getFavicon = async () => {
     if (!url) return;
@@ -37,6 +39,41 @@ export default function Home() {
       setError("请输入有效的网址");
     } finally {
       setLoading(false);
+    }
+  };
+
+  const getMetascraperData = async () => {
+    if (!url) return;
+
+    setMetascraperLoading(true);
+    setError("");
+    setMetadata(null);
+
+    try {
+      // 清理 URL
+      let cleanUrl = url.trim();
+      if (!cleanUrl.startsWith("http://") && !cleanUrl.startsWith("https://")) {
+        cleanUrl = "https://" + cleanUrl;
+      }
+
+      // 验证 URL 格式
+      new URL(cleanUrl);
+
+      // 调用 metascraper API
+      const response = await fetch(`/api/favicon?url=${encodeURIComponent(cleanUrl)}`);
+
+      if (!response.ok) {
+        throw new Error(`HTTP error! status: ${response.status}`);
+      }
+
+      const data = await response.json();
+      setMetadata(data);
+
+    } catch (err) {
+      setError("获取网站元数据失败，请检查网址是否正确");
+      console.error('Metascraper error:', err);
+    } finally {
+      setMetascraperLoading(false);
     }
   };
 
@@ -100,6 +137,17 @@ export default function Home() {
                 </Button>
               </div>
 
+              <div className="flex justify-center">
+                <Button
+                  type="button"
+                  onClick={getMetascraperData}
+                  disabled={metascraperLoading || !url.trim()}
+                  className="h-12 px-8 bg-gradient-to-r from-green-500 to-teal-600 hover:from-green-600 hover:to-teal-700"
+                >
+                  {metascraperLoading ? "获取中..." : "获取完整元数据"}
+                </Button>
+              </div>
+
               {error && (
                 <p className="text-red-500 text-sm">{error}</p>
               )}
@@ -147,6 +195,108 @@ export default function Home() {
                 >
                   下载图标
                 </Button>
+              </div>
+            </CardContent>
+          </Card>
+        )}
+
+        {/* 元数据显示区域 */}
+        {metadata && (
+          <Card className="w-full max-w-4xl mt-8 bg-white/95 backdrop-blur-sm shadow-2xl">
+            <CardContent className="p-6">
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold text-gray-800 text-center">网站元数据</h3>
+                <div className="overflow-x-auto">
+                  <table className="w-full border-collapse">
+                    <thead>
+                      <tr className="border-b border-gray-200">
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 bg-gray-50">字段</th>
+                        <th className="text-left py-3 px-4 font-semibold text-gray-700 bg-gray-50">值</th>
+                      </tr>
+                    </thead>
+                    <tbody>
+                      {metadata.title && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">标题</td>
+                          <td className="py-3 px-4 text-gray-800">{metadata.title}</td>
+                        </tr>
+                      )}
+                      {metadata.description && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">描述</td>
+                          <td className="py-3 px-4 text-gray-800">{metadata.description}</td>
+                        </tr>
+                      )}
+                      {metadata.author && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">作者</td>
+                          <td className="py-3 px-4 text-gray-800">{metadata.author}</td>
+                        </tr>
+                      )}
+                      {metadata.publisher && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">发布者</td>
+                          <td className="py-3 px-4 text-gray-800">{metadata.publisher}</td>
+                        </tr>
+                      )}
+                      {metadata.date && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">日期</td>
+                          <td className="py-3 px-4 text-gray-800">{new Date(metadata.date).toLocaleDateString('zh-CN')}</td>
+                        </tr>
+                      )}
+                      {metadata.url && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">URL</td>
+                          <td className="py-3 px-4 text-gray-800">
+                            <a href={metadata.url} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline">
+                              {metadata.url}
+                            </a>
+                          </td>
+                        </tr>
+                      )}
+                      {metadata.image && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">主图</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center space-x-3">
+                              <img src={metadata.image} alt="网站主图" className="w-16 h-16 object-cover rounded" />
+                              <a href={metadata.image} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm">
+                                查看原图
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      {metadata.logo && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">Logo</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center space-x-3">
+                              <img src={metadata.logo} alt="网站Logo" className="w-8 h-8 object-contain" />
+                              <a href={metadata.logo} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm">
+                                查看原图
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                      {metadata.favicon && (
+                        <tr className="border-b border-gray-100 hover:bg-gray-50">
+                          <td className="py-3 px-4 font-medium text-gray-600">Favicon</td>
+                          <td className="py-3 px-4">
+                            <div className="flex items-center space-x-3">
+                              <img src={metadata.favicon} alt="网站Favicon" className="w-6 h-6 object-contain" />
+                              <a href={metadata.favicon} target="_blank" rel="noopener noreferrer" className="text-blue-600 hover:text-blue-800 underline text-sm">
+                                查看原图
+                              </a>
+                            </div>
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
               </div>
             </CardContent>
           </Card>

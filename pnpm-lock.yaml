@@ -23,10 +23,31 @@ importers:
       metascraper:
         specifier: ^5.49.1
         version: 5.49.1
+      metascraper-author:
+        specifier: ^5.49.1
+        version: 5.49.1
+      metascraper-date:
+        specifier: ^5.49.1
+        version: 5.49.1
+      metascraper-description:
+        specifier: ^5.49.1
+        version: 5.49.1
+      metascraper-image:
+        specifier: ^5.49.1
+        version: 5.49.1
       metascraper-logo:
         specifier: ^5.49.1
         version: 5.49.1
       metascraper-logo-favicon:
+        specifier: ^5.49.1
+        version: 5.49.1
+      metascraper-publisher:
+        specifier: ^5.49.1
+        version: 5.49.1
+      metascraper-title:
+        specifier: ^5.49.1
+        version: 5.49.1
+      metascraper-url:
         specifier: ^5.49.1
         version: 5.49.1
       next:
@@ -1744,12 +1765,40 @@ packages:
     resolution: {integrity: sha512-8q7VEgMJW4J8tcfVPy8g09NcQwZdbwFEqhe/WZkoIzjn/3TGDwtOCYtXGxA3O8tPzpczCCDgv+P2P5y00ZJOOg==}
     engines: {node: '>= 8'}
 
+  metascraper-author@5.49.1:
+    resolution: {integrity: sha512-r8O+cnudC5QOqxRTg6EjceQI4QkP220MDDBaassNwLXRGGehTVdcAPTlrqwK4dHy5V4J5ZzMTnHcTJz5/POpIA==}
+    engines: {node: '>= 16'}
+
+  metascraper-date@5.49.1:
+    resolution: {integrity: sha512-/bdW609+hj/WiEqnplELPwg7KjUFukVOkwQY2Rw/72+DJV2buix44YHOKfiTkA7IQIxamHkRrGU5eSRYCI0Asg==}
+    engines: {node: '>= 16'}
+
+  metascraper-description@5.49.1:
+    resolution: {integrity: sha512-UiC+4JTkjJt92ot+ap+YJDpP7Vsd9Or/4i7OOhMiptGSZfgs5N0aEAB7MdmBz3yT6D/ouAPcv57uMaS6fMZzdQ==}
+    engines: {node: '>= 16'}
+
+  metascraper-image@5.49.1:
+    resolution: {integrity: sha512-j2y5P2X9o6xzYr9YEwqKEkvDowM3Opjf9zM0viMrmaxiQdqLpiijmbR83HgJGwlCBbUqZXZqQLBQn/w02FaLnw==}
+    engines: {node: '>= 16'}
+
   metascraper-logo-favicon@5.49.1:
     resolution: {integrity: sha512-k6guEs48nnwlHwu3RLU1M/1xVY1DJwvhfhciabD0voBWxjIgHlFHCvmGJwvmRp4jh+lCwSYTN1WUCjqGgZ2zMw==}
     engines: {node: '>= 16'}
 
   metascraper-logo@5.49.1:
     resolution: {integrity: sha512-5YgBMqz64rUgoqz/2ai5ySb2vCvF+nPZBbiF/Vlqb48MOeb7KZskiRtgh4g6HBdnhMqbAem7xDUAJeZfaqeiww==}
+    engines: {node: '>= 16'}
+
+  metascraper-publisher@5.49.1:
+    resolution: {integrity: sha512-5lDAw8Fk4GjauES+QzMu9CIPxZqKY3xfI/JHSi/RZjopV15xYag+tes6EkGtqBupaPVMDsPLOLgRFjC2SFR8Ew==}
+    engines: {node: '>= 16'}
+
+  metascraper-title@5.49.1:
+    resolution: {integrity: sha512-hGpOYmA5PR7UvnJri1A7+Pz4kLsV7mxIK7rG45hfC635aR2vISe75O0pPteUzfeczbzQNo1rIwgrSABxL73+Nw==}
+    engines: {node: '>= 16'}
+
+  metascraper-url@5.49.1:
+    resolution: {integrity: sha512-eFTS6BdPrn2Cds1mVPUP6t3rJMPuhI2QTyFWnrMns+j5SNzLP2HDW/YugFASFHWFMOCB+QEwpdKa/E4jdVBuTQ==}
     engines: {node: '>= 16'}
 
   metascraper@5.49.1:
@@ -4529,6 +4578,42 @@ snapshots:
 
   merge2@1.4.1: {}
 
+  metascraper-author@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
+  metascraper-date@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
+  metascraper-description@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
+  metascraper-image@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
   metascraper-logo-favicon@5.49.1:
     dependencies:
       '@keyvhq/memoize': 2.1.9
@@ -4545,6 +4630,33 @@ snapshots:
     dependencies:
       '@metascraper/helpers': 5.49.1
       lodash: 4.17.21
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
+  metascraper-publisher@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
+  metascraper-title@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
+    transitivePeerDependencies:
+      - bufferutil
+      - canvas
+      - supports-color
+      - utf-8-validate
+
+  metascraper-url@5.49.1:
+    dependencies:
+      '@metascraper/helpers': 5.49.1
     transitivePeerDependencies:
       - bufferutil
       - canvas

@@ -11,11 +11,25 @@ export async function GET(request: NextRequest) {
   try {
     // 动态导入 metascraper 相关模块
     const metascraper = (await import('metascraper')).default;
+    const metascraperAuthor = (await import('metascraper-author')).default;
+    const metascraperDate = (await import('metascraper-date')).default;
+    const metascraperDescription = (await import('metascraper-description')).default;
+    const metascraperImage = (await import('metascraper-image')).default;
     const metascraperLogo = (await import('metascraper-logo')).default;
+    const metascraperPublisher = (await import('metascraper-publisher')).default;
+    const metascraperTitle = (await import('metascraper-title')).default;
+    const metascraperUrl = (await import('metascraper-url')).default;
     const metascraperLogoFavicon = (await import('metascraper-logo-favicon')).default;
 
     const scraper = metascraper([
+      metascraperAuthor(),
+      metascraperDate(),
+      metascraperDescription(),
+      metascraperImage(),
       metascraperLogo(),
+      metascraperPublisher(),
+      metascraperTitle(),
+      metascraperUrl(),
       metascraperLogoFavicon()
     ]);
 
@@ -40,10 +54,22 @@ export async function GET(request: NextRequest) {
       const html = await response.text();
       const metadata = await scraper({ html, url });
 
+      // 打印 metascraper 获取到的信息
+      console.log('Metascraper 提取的元数据:', {
+        url: url,
+        metadata: metadata
+      });
+
       return NextResponse.json({
+        author: metadata.author,
+        date: metadata.date,
+        description: metadata.description,
+        image: metadata.image,
         logo: metadata.logo,
-        favicon: metadata.favicon,
-        url: url
+        publisher: metadata.publisher,
+        title: metadata.title,
+        url: metadata.url,
+        favicon: metadata.favicon
       });
 
     } catch (fetchError) {
